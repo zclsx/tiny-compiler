@@ -1,18 +1,18 @@
 import { test, expect } from "vitest";
 import { tokenizer, TokenTypes } from "./tokenizer";
 
-test.skip("tokenizer", () => {
+test("tokenizer", () => {
   const code = `(add 2 (subtract 4 2))`;
   const token = [
-    { type: "paren", value: "(" },
-    { type: "name", value: "add" },
-    { type: "number", value: "2" },
-    { type: "paren", value: "(" },
-    { type: "name", value: "subtract" },
-    { type: "number", value: "4" },
-    { type: "number", value: "2" },
-    { type: "paren", value: ")" },
-    { type: "paren", value: ")" },
+    { type: TokenTypes.paren, value: "(" },
+    { type: TokenTypes.Name, value: "add" },
+    { type: TokenTypes.Number, value: "2" },
+    { type: TokenTypes.paren, value: "(" },
+    { type: TokenTypes.Name, value: "subtract" },
+    { type: TokenTypes.Number, value: "4" },
+    { type: TokenTypes.Number, value: "2" },
+    { type: TokenTypes.paren, value: ")" },
+    { type: TokenTypes.paren, value: ")" },
   ];
   expect(tokenizer(code)).toEqual(token);
 });
@@ -38,5 +38,17 @@ test("number", () => {
 test("right )->paren", () => {
   const code = `)`;
   const token = [{ type: TokenTypes.paren, value: ")" }];
+  expect(tokenizer(code)).toEqual(token);
+});
+
+test("mix S and N", () => {
+  const code = `(add 1 2)`;
+  const token = [
+    { type: TokenTypes.paren, value: "(" },
+    { type: TokenTypes.Name, value: "add" },
+    { type: TokenTypes.Number, value: "1" },
+    { type: TokenTypes.Number, value: "2" },
+    { type: TokenTypes.paren, value: ")" },
+  ];
   expect(tokenizer(code)).toEqual(token);
 });
