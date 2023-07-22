@@ -22,3 +22,11 @@ test("(->paren", () => {
   const token = [{ type: TokenTypes.paren, value: "(" }];
   expect(tokenizer(code)).toEqual(token);
 });
+
+
+test("add", () => {
+  const code = `add`;
+  const token = [{ type: TokenTypes.Name, value: "add" }];
+  expect(tokenizer(code)).toEqual(token);
+});
+

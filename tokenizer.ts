@@ -1,5 +1,6 @@
 export enum TokenTypes {
-    paren
+  paren,
+  Name,
 }
 
 interface Token {
@@ -18,5 +19,19 @@ export function tokenizer(code: string) {
       value: char,
     });
   }
+
+  const LETTERS = /[a-z]/i;
+  if (LETTERS.test(char)) {
+    let value = "";
+    while (LETTERS.test(char) && current < code.length) {
+      value += char;
+      char = code[++current];
+    }
+    tokens.push({
+      type: TokenTypes.Name,
+      value,
+    });
+  }
+
   return tokens;
 }
