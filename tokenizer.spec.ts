@@ -52,3 +52,4 @@ test("mix S and N", () => {
   ];
   expect(tokenizer(code)).toEqual(token);
 });
+
