@@ -1,19 +1,29 @@
+import { C } from "vitest/dist/types-198fd1d9";
 import { TokenTypes, Token } from "./tokenizer";
 
 export enum NodeTypes {
   Root,
   Number,
+  CallExpression,
 }
 
 interface Node {
   type: NodeTypes;
 }
 
+type ChildNode = NumberNode | CallExpressionNode;
+
 interface RootNode extends Node {
-  body: Node[];
+  body: ChildNode[];
 }
 interface NumberNode extends Node {
   value: string;
+}
+
+interface CallExpressionNode extends Node {
+  name: string;
+  //考虑到后面还有表达式
+  params: ChildNode[];
 }
 
 function createRootNode(): RootNode {
@@ -38,6 +48,22 @@ export function parser(tokens: Token[]) {
 
   if (token.type === TokenTypes.Number) {
     rootNode.body.push(createNumberNode(token.value));
+  }
+
+  if (token.type === TokenTypes.paren && token.value === "(") {
+    token = tokens[++current];
+    const node: CallExpressionNode = {
+      type: NodeTypes.CallExpression,
+      name: token.value,
+      params: [],
+    };
+    token = tokens[++current];
+    while (!(token.type === TokenTypes.paren && token.value === ")")) {
+      if (token.type === TokenTypes.Number) {
+        node.params.push(createNumberNode(token.value));
+      }
+      token = tokens[++current];
+    }
   }
   return rootNode;
 }

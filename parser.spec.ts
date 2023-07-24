@@ -66,3 +66,33 @@ test("number", () => {
 
   expect(parser(token)).toEqual(ast);
 });
+
+test("CallExpression ", () => {
+  const token = [
+    { type: TokenTypes.paren, value: "(" },
+    { type: TokenTypes.Name, value: "add" },
+    { type: TokenTypes.Number, value: "2" },
+    { type: TokenTypes.Number, value: "4" },
+    { type: TokenTypes.paren, value: "(" },
+  ];
+
+  const ast = {
+    type: NodeTypes.Root,
+    body: [
+      {
+        type: NodeTypes.CallExpression,
+        name: "add",
+        params: [
+          {
+            type: NodeTypes.Number,
+            value: "2",
+          },
+          {
+            type: NodeTypes.Number,
+            value: "4",
+          },
+        ],
+      },
+    ],
+  };
+});
