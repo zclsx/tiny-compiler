@@ -1,8 +1,8 @@
 import { RootNode, ChildNode } from "./ast";
 
 interface VisitorOption {
-  enter();
-  exit();
+  enter(node: ChildNode | RootNode, parent: ChildNode | RootNode | undefined);
+  exit(node: ChildNode | RootNode, parent: ChildNode | RootNode | undefined);
 }
 
 export interface Visitor {
@@ -16,30 +16,36 @@ export function traverser(rootNode: RootNode, visitor: Visitor) {
   //1.深度优先搜索
   //2.visitor
 
-  function traverserArray(array: ChildNode[]) {
+  function traverserArray(
+    array: ChildNode[],
+    parent: ChildNode | RootNode | undefined
+  ) {
     array.forEach((node) => {
-      traverserNode(node);
+      traverserNode(node, parent);
     });
   }
 
-  function traverserNode(node: ChildNode | RootNode) {
+  function traverserNode(
+    node: ChildNode | RootNode,
+    parent?: ChildNode | RootNode
+  ) {
     // console.log("node:", node);
     const visitorObj = visitor[node.type];
     if (visitorObj) {
-      visitorObj.enter();
+      visitorObj.enter(node, parent);
     }
     switch (node.type) {
       case "Program":
-        traverserArray(node.body);
+        traverserArray(node.body, node);
         break;
       case "CallExpression":
-        traverserArray(node.params);
+        traverserArray(node.params, node);
         break;
       case "NumberLiteral":
         break;
     }
     if (visitorObj) {
-      visitorObj.exit();
+      visitorObj.exit(node, parent);
     }
   }
 
