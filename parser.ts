@@ -36,34 +36,49 @@ function createRootNode(): RootNode {
 function createNumberNode(value: string): NumberNode {
   return {
     type: NodeTypes.Number,
-    value: "2",
+    value,
+  };
+}
+
+function createCallExpressionNode(name: string): CallExpressionNode {
+  return {
+    type: NodeTypes.CallExpression,
+    name,
+    params: [],
   };
 }
 
 export function parser(tokens: Token[]) {
   let current = 0;
-  let token = tokens[current];
 
   const rootNode = createRootNode();
 
-  if (token.type === TokenTypes.Number) {
-    rootNode.body.push(createNumberNode(token.value));
-  }
-
-  if (token.type === TokenTypes.paren && token.value === "(") {
-    token = tokens[++current];
-    const node: CallExpressionNode = {
-      type: NodeTypes.CallExpression,
-      name: token.value,
-      params: [],
-    };
-    token = tokens[++current];
-    while (!(token.type === TokenTypes.paren && token.value === ")")) {
-      if (token.type === TokenTypes.Number) {
-        node.params.push(createNumberNode(token.value));
-      }
-      token = tokens[++current];
+  function walk() {
+    //递归
+    let token = tokens[current];
+    if (token.type === TokenTypes.Number) {
+      // rootNode.body.push(createNumberNode(token.value));
+      current++;
+      return createNumberNode(token.value);
     }
+
+    if (token.type === TokenTypes.paren && token.value === "(") {
+      token = tokens[++current];
+      const node = createCallExpressionNode(token.value);
+
+      token = tokens[++current];
+      while (!(token.type === TokenTypes.paren && token.value === ")")) {
+        node.params.push(walk());
+        token = tokens[current];
+      }
+      current++; //跳过右括号
+      // rootNode.body.push(node); //把node放到rootNode的body里
+      return node;
+    }
+    throw new Error(`unexpected token:${token}`);
+  }
+  while (current < tokens.length) {
+    rootNode.body.push(walk());
   }
   return rootNode;
 }
