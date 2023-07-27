@@ -1,52 +1,10 @@
-import { C } from "vitest/dist/types-198fd1d9";
-import { TokenTypes, Token } from "./tokenizer";
-
-export enum NodeTypes {
-  Root,
-  Number,
-  CallExpression,
-}
-
-interface Node {
-  type: NodeTypes;
-}
-
-type ChildNode = NumberNode | CallExpressionNode;
-
-interface RootNode extends Node {
-  body: ChildNode[];
-}
-interface NumberNode extends Node {
-  value: string;
-}
-
-interface CallExpressionNode extends Node {
-  name: string;
-  //考虑到后面还有表达式
-  params: ChildNode[];
-}
-
-function createRootNode(): RootNode {
-  return {
-    type: NodeTypes.Root,
-    body: [],
-  };
-}
-
-function createNumberNode(value: string): NumberNode {
-  return {
-    type: NodeTypes.Number,
-    value,
-  };
-}
-
-function createCallExpressionNode(name: string): CallExpressionNode {
-  return {
-    type: NodeTypes.CallExpression,
-    name,
-    params: [],
-  };
-}
+import {
+  createRootNode,
+  createStringLiteralNode,
+  createNumberLiteralNode,
+  createCallExpression,
+} from "./ast";
+import { Token, TokenTypes } from "./tokenizer";
 
 export function parser(tokens: Token[]) {
   let current = 0;
@@ -59,12 +17,17 @@ export function parser(tokens: Token[]) {
     if (token.type === TokenTypes.Number) {
       // rootNode.body.push(createNumberNode(token.value));
       current++;
-      return createNumberNode(token.value);
+      return createNumberLiteralNode(token.value);
     }
+    if(token.type === TokenTypes.String){
+      current++;
+      return createStringLiteralNode(token.value);
+    } 
+
 
     if (token.type === TokenTypes.paren && token.value === "(") {
       token = tokens[++current];
-      const node = createCallExpressionNode(token.value);
+      const node = createCallExpression(token.value);
 
       token = tokens[++current];
       while (!(token.type === TokenTypes.paren && token.value === ")")) {
@@ -82,3 +45,51 @@ export function parser(tokens: Token[]) {
   }
   return rootNode;
 }
+
+
+// export enum NodeTypes {
+//   Root,
+//   Number,
+//   CallExpression,
+// }
+
+// interface Node {
+//   type: NodeTypes;
+// }
+
+// type ChildNode = NumberNode | CallExpressionNode;
+
+// interface RootNode extends Node {
+//   body: ChildNode[];
+// }
+// interface NumberNode extends Node {
+//   value: string;
+// }
+
+// interface CallExpressionNode extends Node {
+//   name: string;
+//   //考虑到后面还有表达式
+//   params: ChildNode[];
+// }
+
+// function createRootNode(): RootNode {
+//   return {
+//     type: NodeTypes.Root,
+//     body: [],
+//   };
+// }
+
+// function createNumberNode(value: string): NumberNode {
+//   return {
+//     type: NodeTypes.Number,
+//     value,
+//   };
+// }
+
+// function createCallExpressionNode(name: string): CallExpressionNode {
+//   return {
+//     type: NodeTypes.CallExpression,
+//     name,
+//     params: [],
+//   };
+// }
